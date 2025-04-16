@@ -14,12 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.run_id }}
-
       - name: Setting Environment
         env:
           PROJECT_NAME: ${{ vars.PROJECT_NAME }}
@@ -40,14 +34,14 @@ jobs:
           echo "Updated .env:"
           cat .env
 
+      - name: Copy .env to backend
+        run: cp .env ./backend/
+
       - name: Upload .env artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file
-          path: .env
-
-      - name: Copy .env to backend
-        run: cp .env ./backend/
+          path: ./backend/.env
 
       - name: Setting frontend env
         run: |
@@ -58,6 +52,12 @@ jobs:
           
       - name: Build containers
         run: make first-start-app
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.run_id }}
 
   test:
     runs-on: ubuntu-latest
@@ -73,8 +73,14 @@ jobs:
           name: env-file
 
       - name: Copy .env to backend
-        run: cp .env ./backend/
-
+        run: cp ./backend/.env ./backend/
+        
+      - name: Restore Docker cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.run_id }}
+          
       - name: Start containers
         run: docker compose up -d
 
