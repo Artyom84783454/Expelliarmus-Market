@@ -2,6 +2,7 @@
 
 first-start-app: ## First application init
 	docker compose up -d --build
+	docker exec php composer install
 	docker exec npm npm install
 	docker exec php php artisan migrate:fresh --seed --storage-clean
 	docker exec php php artisan storage:link

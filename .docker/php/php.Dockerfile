@@ -64,11 +64,6 @@ COPY --from=builder /usr/local/lib/php /usr/local/lib/php
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-# Сoppy backend folder
-COPY backend/ /var/www/expelliarmus/backend/
-
-# Install PHP dependencies with Composer
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # User and group creation
 RUN addgroup -S -g ${GID} laravel \
