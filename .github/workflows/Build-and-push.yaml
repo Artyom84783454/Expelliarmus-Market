@@ -108,8 +108,8 @@ jobs:
       #     name: env-file
       #     path: ./artifacts
 
-      - name: Copy .env to backend
-        run: cp ./artifacts/.env ./backend/.env
+      # - name: Copy .env to backend
+      #   run: cp ./artifacts/.env ./backend/.env
 
       - name: Verify cache path exists
         run: ls -la /tmp/.buildx-cache || echo "Cache path does not exist"
