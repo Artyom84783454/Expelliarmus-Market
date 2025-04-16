@@ -37,17 +37,25 @@ jobs:
       - name: Copy .env to backend
         run: cp .env ./backend/.env
 
+      - name: Verify .env exists in backend
+        run: ls -la ./backend/.env
+
       - name: Upload .env artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file
           path: ./backend/.env
-
       - name: Setting frontend env
         run: |
           cp .env.front.example ./frontend/
           mv ./frontend/.env.front.example ./frontend/.env
           echo "Updated .env for frontend."
+
+      - name: Verify cache path exists
+        run: ls -la /tmp/.buildx-cache || echo "Cache path does not exist"
+
+      - name: Create cache directory
+        run: mkdir -p /tmp/.buildx-cache
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -77,6 +85,9 @@ jobs:
 
       - name: Copy .env to backend
         run: cp ./artifacts/.env ./backend/.env
+
+      - name: Verify cache path exists
+        run: ls -la /tmp/.buildx-cache || echo "Cache path does not exist"
 
       - name: Restore Docker cache
         uses: actions/cache@v3
