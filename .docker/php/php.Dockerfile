@@ -10,6 +10,8 @@ RUN apk update && apk add --no-cache \
     zlib-dev \
     icu-dev \
     libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libzip-dev \
     g++ \
     curl \
@@ -24,6 +26,10 @@ RUN apk update && apk add --no-cache \
 RUN docker-php-ext-install pdo pdo_pgsql pgsql opcache \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl
+
+# Установка и настройка GD
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
 
 # Install imagick
 RUN git clone https://github.com/Imagick/imagick.git --depth 1 /tmp/imagick \
@@ -53,7 +59,10 @@ RUN apk update && apk add --no-cache \
     postgresql-libs \
     git \
     unzip \
-    zip
+    zip \
+    libpng \
+    libjpeg-turbo \
+    freetype
 
 # Copy build files from the builder stage
 COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
@@ -63,7 +72,6 @@ COPY --from=builder /usr/local/lib/php /usr/local/lib/php
 
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
 
 # User and group creation
 RUN addgroup -S -g ${GID} laravel \

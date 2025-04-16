@@ -70,6 +70,8 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
       - .docker/db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - .docker/db/init-db-expelliarmus.sql:/docker-entrypoint-initdb.d/init-db-expelliarmus.sql
+      - .docker/db/init-db-expelliarmus_test.sql:/docker-entrypoint-initdb.d/init-db-expelliarmus_test.sql
     env_file:
       - .env
     healthcheck:
