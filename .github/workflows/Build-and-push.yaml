@@ -44,7 +44,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: env-file
-          path: ./backend/.env
+          path: $GITHUB_WORKSPACE/backend/.env
+
       - name: Setting frontend env
         run: |
           cp .env.front.example ./frontend/
