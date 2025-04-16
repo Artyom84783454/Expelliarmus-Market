@@ -68,7 +68,22 @@ jobs:
             ${{ runner.os }}-docker-
 
       - name: Build containers
-        run: make first-start-app
+        run: DOCKER_BUILDKIT=1 docker compose build
+      
+      - name: Install backend dependencies
+        run: docker exec php composer install
+
+      - name: Install frontend dependencies
+        run: docker exec npm npm install
+
+      - name: Run migrations and seeders
+        run: docker exec php php artisan migrate:fresh --seed --storage-clean
+
+      - name: Create storage symlink
+        run: docker exec php php artisan storage:link
+
+      - name: Generate application key
+        run: docker exec php php artisan key:generate
 
   test:
     runs-on: ubuntu-latest

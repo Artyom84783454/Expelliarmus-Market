@@ -4,6 +4,10 @@ services:
     build:
       context: .
       dockerfile: .docker/php/php.Dockerfile
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache
       args:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
@@ -26,7 +30,10 @@ services:
     build:
       context: .docker/node
       dockerfile: node.Dockerfile
-
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache
     container_name: npm
     volumes:
       - ./frontend:/var/www/expelliarmus/frontend
@@ -40,6 +47,10 @@ services:
     build:
       context: .docker/nginx
       dockerfile: nginx.Dockerfile
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache
       args:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
@@ -60,6 +71,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:17.4-alpine
+    
     restart: always
     ports:
       - "5434:5432"
@@ -95,7 +107,10 @@ services:
     build:
       context: .docker/php
       dockerfile: scheduler.Dockerfile
-
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache
     container_name: scheduler
     volumes:
       - .:/var/www/expelliarmus
@@ -109,7 +124,10 @@ services:
     build:
       context: .docker/php
       dockerfile: queue.Dockerfile
-
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
+      cache_to:
+        - type=local,dest=/tmp/.buildx-cache
     container_name: queue
     volumes:
       - .:/var/www/expelliarmus
