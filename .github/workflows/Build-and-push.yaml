@@ -1,4 +1,4 @@
-name: Docker compose CI and push
+name: Docker Compose CI and Push
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
           cat .env
 
       - name: Copy .env to backend
-        run: cp .env ./backend/
+        run: cp .env ./backend/.env
 
       - name: Upload .env artifact
         uses: actions/upload-artifact@v4
@@ -47,17 +47,19 @@ jobs:
         run: |
           cp .env.front.example ./frontend/
           mv ./frontend/.env.front.example ./frontend/.env
-          echo "Updated .env:"
-
-          
-      - name: Build containers
-        run: make first-start-app
+          echo "Updated .env for frontend."
 
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.run_id }}
+          key: ${{ runner.os }}-docker-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-${{ github.ref }}
+            ${{ runner.os }}-docker-
+
+      - name: Build containers
+        run: make first-start-app
 
   test:
     runs-on: ubuntu-latest
@@ -71,16 +73,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: env-file
+          path: ./artifacts
 
       - name: Copy .env to backend
-        run: cp ./backend/.env ./backend/
-        
+        run: cp ./artifacts/.env ./backend/.env
+
       - name: Restore Docker cache
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.run_id }}
-          
+          key: ${{ runner.os }}-docker-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-${{ github.ref }}
+            ${{ runner.os }}-docker-
+
       - name: Start containers
         run: docker compose up -d
 
@@ -116,6 +122,6 @@ jobs:
       #     registry: ghcr.io
       #     username: ${{ github.actor }}
       #     password: ${{ secrets.GHCR_PAT }}
-      #
+
       # - name: Push Docker images
       #   run: docker compose push
