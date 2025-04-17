@@ -1,4 +1,4 @@
-name: Docker Compose CI and Push
+name: Docker compose CI and push
 
 on:
   push:
@@ -14,149 +14,54 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Setting Environment
-        env:
-          PROJECT_NAME: ${{ vars.PROJECT_NAME }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          DB_HOST: ${{ vars.DB_HOST }}
-          DB_CONNECTION: ${{ vars.DB_CONNECTION }}
-        run: |
-          cp .env.example .env
-          sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
-          sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env
-          sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env
-          sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USERNAME}/" .env
-          sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
-          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASSWORD}/" .env
-
-      - name: Copy .env to backend
-        run: cp .env ./backend/.env
-
-      - name: Build and start containers
-        env:
-          DOCKER_BUILDKIT: 1
-        run: docker compose up -d --build
-
-      - name: Install backend dependencies
-        run: docker exec php composer install
-
-      - name: Install frontend dependencies
-        run: docker exec npm npm install
-
-      - name: Run migrations and seeders
-        run: docker exec php php artisan migrate:fresh --seed --storage-clean
-
-      - name: Create storage symlink
-        run: docker exec php php artisan storage:link
-
-      - name: Generate application key
-        run: docker exec php php artisan key:generate
-
-      - name: Save Docker images
-        run: |
-          IMAGES=$(docker compose ps --format json | jq -r '.[].Image')
-          docker save $IMAGES -o images.tar
-
-      - name: Upload Docker images artifact
-        uses: actions/upload-artifact@v4
-        with:
-            name: docker-images
-            path: images.tar
-
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Setting Environment
-        env:
-          PROJECT_NAME: ${{ vars.PROJECT_NAME }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          DB_HOST: ${{ vars.DB_HOST }}
-          DB_CONNECTION: ${{ vars.DB_CONNECTION }}
-        run: |
-          cp .env.example .env
-          sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
-          sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env
-          sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env
-          sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USERNAME}/" .env
-          sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
-          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASSWORD}/" .env
-
-      - name: Copy .env to backend
-        run: cp .env ./backend/.env
-
-      - name: Restore Docker cache
+      - name: Cache Docker layers
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.ref }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-${{ github.ref }}
-            ${{ runner.os }}-docker-
+          key: ${{ runner.os }}-docker-${{ github.run_id }}
 
-      - name: Download Docker images artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-images
-          path: .
+          #- name: Log in to GitHub Container Registry
+          #  uses: docker/login-action@v2
+          #  with:
+          #   registry: ghcr.io
+          #   username: ${{ github.actor }}
+          #  password: ${{ secrets.GHCR_PAT }}
 
-      - name: Load Docker images
-        run: docker load -i images.tar
+      - name: Setting Environment
+        env:
+          PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_CONNECTION: ${{ vars.DB_CONNECTION }}
+          APP_KEY: ${{ secrets.APP_KEY }}
 
-      - name: Start containers
-        run: docker compose up -d
-
-      - name: Wait for Postgres
         run: |
-          for i in {1..30}; do
-            docker exec postgres pg_isready -U ${{ secrets.DB_USERNAME }} && break
-            sleep 2
-          done
+          cp .env.example .env
 
-      - name: Create test database if not exists
+          sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
+          sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env
+          sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env
+          sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USERNAME}/" .env
+          sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
+          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASSWORD}/" .env
+          sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env
+
+          echo "Updated .env:"
+          cat .env
+
+      - name: Copy .env to backend
+        working-directory: ${{ github.workspace }}
         run: |
-          docker exec postgres psql -U ${{ secrets.DB_USERNAME }} -tc "SELECT 1 FROM pg_database WHERE datname = 'expelliarmus_test'" | grep -q 1 || \
-          docker exec postgres psql -U ${{ secrets.DB_USERNAME }} -c "CREATE DATABASE expelliarmus_test ENCODING 'UTF8';"
+          cp .env ./backend/
 
-      - name: Run backend tests
-        run: docker exec php php artisan test
+      - name: Setting frontend env
+        run: |
+          cp .env.front.example ./frontend/
+          mv ./frontend/.env.front.example ./frontend/.env
+          echo "Updated .env:"
 
-      - name: Stop containers
-        run: docker compose down
-
-  push:
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Если нужно логиниться в контейнерный регистр
-      # - name: Log in to GitHub Container Registry
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GHCR_PAT }}
-
-      # Здесь можно пушить образы
-      # - name: Push Docker images
-      #   run: docker compose push
+      - name: First-start-app
+        run: make first-start-app
