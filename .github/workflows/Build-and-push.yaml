@@ -71,7 +71,7 @@ jobs:
 
       - name: Save Docker images
         run: |
-          docker save $(docker compose config --services | xargs -I {} docker compose images {} --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>") -o images.tar
+          docker compose ps --format json | jq -r '.[].Image' | xargs docker save -o images.tar
 
       - name: Upload Docker images artifact
         uses: actions/upload-artifact@v4
