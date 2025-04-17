@@ -38,19 +38,6 @@ jobs:
       - name: Copy .env to backend
         run: cp .env ./backend/.env
 
-      - name: Setting frontend env
-        run: |
-          cp .env.front.example ./frontend/.env
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.ref }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-${{ github.ref }}
-            ${{ runner.os }}-docker-
-
       - name: Build and start containers
         run: DOCKER_BUILDKIT=1 docker compose up -d --build
 
@@ -78,6 +65,7 @@ jobs:
         with:
           name: docker-images
           path: images.tar
+
 
   test:
     runs-on: ubuntu-latest
