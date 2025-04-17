@@ -39,7 +39,9 @@ jobs:
         run: cp .env ./backend/.env
 
       - name: Build and start containers
-        run: DOCKER_BUILDKIT=1 docker compose up -d --build
+        env:
+          DOCKER_BUILDKIT: 1
+        run: docker compose up -d --build
 
       - name: Install backend dependencies
         run: docker exec php composer install
@@ -58,13 +60,14 @@ jobs:
 
       - name: Save Docker images
         run: |
-          docker compose ps --format json | jq -r '.[].Image' | xargs docker save -o images.tar
+          IMAGES=$(docker compose ps --format json | jq -r '.[].Image')
+          docker save $IMAGES -o images.tar
 
       - name: Upload Docker images artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docker-images
-          path: images.tar
+            name: docker-images
+            path: images.tar
 
 
   test:
