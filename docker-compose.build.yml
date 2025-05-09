@@ -69,6 +69,7 @@ services:
     networks:
       - expelliarmus
   queue:
+    container_name: queue
     build:
       context: .
       dockerfile: .docker/php/queue.Dockerfile
@@ -89,6 +90,7 @@ services:
       - expelliarmus
 
   scheduler:
+    container_name: scheduler
     build:
       context: .
       dockerfile: .docker/php/scheduler.Dockerfile
