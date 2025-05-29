@@ -52,7 +52,7 @@ jobs:
   #         sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
   #         sed -i "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}|" .env
   #         sed -i "s|^FRONTEND_URL=.*|FRONTEND_URL=${FRONTEND_URL}|" .env
-  #         sed -i "s|^BACKEND_URLL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
+  #         sed -i "s|^BACKEND_URL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
   #         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
   #         sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
   #         sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env
@@ -113,7 +113,6 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           REDIS_HOST: ${{ vars.REDIS_HOST }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          DB_HOST: ${{ vars.DB_HOST }}
           APP_URL: ${{ secrets.APP_URL }}
           APP_KEY: ${{ secrets.APP_KEY }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
@@ -127,9 +126,9 @@ jobs:
           sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
           sed -i "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}|" .env
           sed -i "s|^FRONTEND_URL=.*|FRONTEND_URL=${FRONTEND_URL}|" .env
-          sed -i "s|^BACKEND_URLL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
+          sed -i "s|^BACKEND_URL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
           sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
-          sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
+          sed -i "s/^DB_HOST=.*/DB_HOST=localhost/" .env
           sed -i "s/^DB_DATABASE=.*/DB_DATABASE=${DB_DATABASE}/" .env
           sed -i "s/^DB_USERNAME=.*/DB_USERNAME=postgres/" .env
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
@@ -137,7 +136,14 @@ jobs:
           echo "Updated docker .env:"
           cp .env backend/.env
           cat .env
-          
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}      
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
@@ -212,7 +218,7 @@ jobs:
   #         sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
   #         sed -i "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}|" .env
   #         sed -i "s|^FRONTEND_URL=.*|FRONTEND_URL=${FRONTEND_URL}|" .env
-  #         sed -i "s|^BACKEND_URLL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
+  #         sed -i "s|^BACKEND_URL=.*|FRONTEND_URL=${BACKEND_URL}|" .env
   #         sed -i "s|^APP_URL=.*|APP_URL=${APP_URL}|" .env
   #         sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
   #         sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=${DB_CONNECTION}/" .env
