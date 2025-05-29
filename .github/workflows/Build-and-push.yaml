@@ -96,10 +96,7 @@ jobs:
       redis:
         image: redis:8
         env:
-          REDIS_HOST: ${{ vars.REDIS_HOST }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-        ports:
-          - 6379:6379
 
     steps:
       - uses: actions/checkout@v3
