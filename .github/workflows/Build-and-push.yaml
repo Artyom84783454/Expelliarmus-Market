@@ -148,12 +148,15 @@ jobs:
           done
         env:
           PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+      - name: Install Redis CLI
+        run: sudo apt-get update && sudo apt-get install -y redis-tools
+
       - name: Wait for Redis
         run: |
-          until nc -z redis 6379; do
+          until redis-cli -h redis ping | grep PONG; do
             echo "Waiting for Redis..."
             sleep 2
-          done      
+          done  
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
