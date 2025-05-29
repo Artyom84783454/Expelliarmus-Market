@@ -96,6 +96,7 @@ jobs:
       redis:
         image: redis:8
         env:
+          REDIS_HOST: ${{ vars.REDIS_HOST }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     steps:
@@ -154,10 +155,12 @@ jobs:
 
       - name: Wait for Redis
         run: |
-          until redis-cli -h redis ping | grep PONG; do
+          until redis-cli -h redis -a "$REDIS_PASSWORD" ping | grep PONG; do
             echo "Waiting for Redis..."
             sleep 2
-          done  
+          done
+        env:
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
