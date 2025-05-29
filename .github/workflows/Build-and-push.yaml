@@ -95,6 +95,8 @@ jobs:
           --health-retries=5
       redis:
         image: redis:8
+        ports:
+          - 6379:6379
         env:
           REDIS_HOST: ${{ vars.REDIS_HOST }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
