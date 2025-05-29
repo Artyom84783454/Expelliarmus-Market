@@ -14,7 +14,7 @@ use Modules\Warehouse\Models\Discount;
 
 abstract class AbstractDiscountService
 {
-    /** @var ?Collection<int, DiscountRelationInterface> $productVariations */
+    /** @var ?Collection<int, DiscountRelationInterface> */
     protected readonly ?Collection $productVariations;
 
     public function __construct(protected readonly Product $product)
