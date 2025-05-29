@@ -121,7 +121,7 @@ jobs:
           SANCTUM_STATEFUL_DOMAINS: ${{ secrets.SANCTUM_STATEFUL_DOMAINS }}
           SESSION_DOMAIN: ${{ secrets.SESSION_DOMAIN }}
         run: |
-          cp .env.prod backend/.env
+          cp .env.prod .env
           sed -i "s|^REDIS_HOST=.*|REDIS_HOST=${REDIS_HOST}|" .env
           sed -i "s|^PROJECT_NAME=.*|PROJECT_NAME=${PROJECT_NAME}|" .env
           sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
@@ -135,6 +135,7 @@ jobs:
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env
           sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env
           echo "Updated docker .env:"
+          cp .env backend/.env
           cat .env
           
       - name: Install PostgreSQL client
