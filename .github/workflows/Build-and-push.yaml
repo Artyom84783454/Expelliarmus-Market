@@ -68,8 +68,10 @@ jobs:
           tools: composer
 
       - name: Install Dependencies
+        working-directory: backend
         run: composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Launch Pint inspection
+        working-directory: backend
         run: vendor/bin/pint
  
       - name: Commit changes
