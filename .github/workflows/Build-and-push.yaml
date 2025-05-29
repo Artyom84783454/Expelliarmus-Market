@@ -15,9 +15,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.3'
+          tools: composer
       - uses: actions/checkout@v3
       - name: Setting Environment
         env:
@@ -61,15 +63,9 @@ jobs:
           sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env
           echo "Updated docker .env:"
           cat .env
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          tools: composer
-
       - name: Install Dependencies
         working-directory: backend
-        run: composer install -vvv --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Launch Pint inspection
         working-directory: backend
         run: vendor/bin/pint
