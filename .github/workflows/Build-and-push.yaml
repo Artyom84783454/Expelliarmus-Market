@@ -62,7 +62,7 @@ jobs:
           echo "Updated docker .env:"
           cat .env
       - name: Setup PHP
-        uses: shivammathur/setup-php@v3
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: none
