@@ -104,6 +104,7 @@ jobs:
           tools: composer
 
       - name: Install dependencies
+        working-directory: backend
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Setting Environment
         env:
