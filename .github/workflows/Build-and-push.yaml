@@ -65,14 +65,19 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: none
+          extensions: xml
           tools: composer
 
       - name: Install SQLSRV PHP Extensions & ODBC Driver for PHP 8.3
         run: |
           sudo apt-get update
-          sudo apt-get install -y unixodbc-dev gcc g++ make autoconf libc-dev pkg-config
+          sudo apt-get install -y \
+            unixodbc-dev \
+            gcc g++ make autoconf libc-dev pkg-config \
+            libxml2-dev
+
           sudo pecl install sqlsrv pdo_sqlsrv
+
           echo "extension=sqlsrv.so" | sudo tee -a "$(php --ini | grep 'Loaded Configuration' | awk '{print $4}')"
           echo "extension=pdo_sqlsrv.so" | sudo tee -a "$(php --ini | grep 'Loaded Configuration' | awk '{print $4}')"
 
