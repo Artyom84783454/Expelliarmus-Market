@@ -61,6 +61,20 @@ jobs:
           sed -i "s/^APP_KEY=.*/APP_KEY=${APP_KEY}/" .env
           echo "Updated docker .env:"
           cat .env
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.3'
+          extensions: none
+          tools: composer
+
+      - name: Install SQLSRV PHP Extensions & ODBC Driver for PHP 8.3
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev gcc g++ make autoconf libc-dev pkg-config
+          sudo pecl install sqlsrv pdo_sqlsrv
+          echo "extension=sqlsrv.so" | sudo tee -a "$(php --ini | grep 'Loaded Configuration' | awk '{print $4}')"
+          echo "extension=pdo_sqlsrv.so" | sudo tee -a "$(php --ini | grep 'Loaded Configuration' | awk '{print $4}')"
 
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
