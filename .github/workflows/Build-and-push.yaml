@@ -126,6 +126,7 @@ jobs:
         run: |
           cp .env.prod .env
           sed -i "s|^REDIS_HOST=.*|REDIS_HOST=${REDIS_HOST}|" .env
+          sed -i "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=${REDIS_PASSWORD}|" .env
           sed -i "s|^PROJECT_NAME=.*|PROJECT_NAME=${PROJECT_NAME}|" .env
           sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
           sed -i "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}|" .env
