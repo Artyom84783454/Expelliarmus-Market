@@ -149,9 +149,11 @@ jobs:
           psql -h localhost -U postgres -f .docker/db/init-db.sql
 
       - name: Run migrations
+        working-directory: backend
         run: php artisan migrate:fresh --seed --storage-clean --force
 
       - name: Run tests
+        working-directory: backend
         run: php artisan test --no-interaction --verbose
   # build_and_push:
   #   runs-on: ubuntu-latest
