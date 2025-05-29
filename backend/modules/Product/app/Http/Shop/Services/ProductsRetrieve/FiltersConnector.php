@@ -8,7 +8,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 readonly class FiltersConnector
 {
-    /**@var array<int, AllowedFilter> $filters */
+    /** @var array<int, AllowedFilter> $filters */
     private array $filters;
 
     public function defineFilters(array $filters = []): void
