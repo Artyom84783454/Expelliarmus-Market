@@ -177,7 +177,7 @@ jobs:
 
       - name: Run tests
         working-directory: backend
-        run: php artisan test --no-interaction --verbose
+        run: php artisan test --verbose
   # build_and_push:
   #   runs-on: ubuntu-latest
 
