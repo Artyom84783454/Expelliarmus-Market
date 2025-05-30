@@ -2,9 +2,9 @@ name: Pint Tests Build and Push
 
 on:
   push:
-    branches: [ "dev", "master","test" ]
+    branches: ["test"]
   pull_request:
-    branches: [ "dev", "master","test" ]
+    branches: ["test"]
 
 env:
   REGISTRY: ghcr.io
