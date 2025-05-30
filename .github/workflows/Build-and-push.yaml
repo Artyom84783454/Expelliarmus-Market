@@ -99,7 +99,6 @@ jobs:
           - 6379:6379
         env:
           REDIS_HOST: localhost
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v3
@@ -129,7 +128,7 @@ jobs:
         run: |
           cp .env.prod .env
           sed -i "s|^REDIS_HOST=.*|REDIS_HOST=localhost|" .env
-          sed -i "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=${REDIS_PASSWORD}|" .env
+          sed -i "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=null|" .env
           sed -i "s|^PROJECT_NAME=.*|PROJECT_NAME=${PROJECT_NAME}|" .env
           sed -i "s|^SESSION_DOMAIN=.*|SESSION_DOMAIN=${SESSION_DOMAIN}|" .env
           sed -i "s|^SANCTUM_STATEFUL_DOMAINS=.*|SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS}|" .env
