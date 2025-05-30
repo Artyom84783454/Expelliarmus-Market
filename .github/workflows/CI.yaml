@@ -110,6 +110,7 @@ jobs:
         working-directory: backend
         run: php artisan test 
   Build_and_push:
+    needs: Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
