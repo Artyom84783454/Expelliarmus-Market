@@ -1,4 +1,4 @@
-name: Docker compose CI and push
+name: Pint Tests Build and Push
 
 on:
   push:
